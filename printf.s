@@ -1,11 +1,6 @@
-; ----------------------------------------------------------------------------------------
-; Writes "Hello, World" to the console using only system calls. Runs on 64-bit Linux only.
-; To assemble and run:
-;
-;     nasm -felf64 hello.asm && ld hello.o && ./a.out
-; ----------------------------------------------------------------------------------------
+	global	_start
 
-	global    _start
+	extern	strlen
 
 	section   .text
 _start:
@@ -69,24 +64,6 @@ printf_end:
 	xor	rdi, rdi                ; exit code 0
 	
 	syscall				; invoke operating system to exit
-
-;=================
-; Inputs:	RDI - adress of null-terminated string
-; Outputs:	RCX - length of string excluding null byte
-; Destroys:	RAX, RDI, RCX
-;=================
-strlen:
-	xor	rcx, rcx
-	not	rcx			; rcx = INT_MAX
-
-	xor	rax, rax		; rax = 0
-
-	repne	scasb			; while (!*rdi) rcx--
-	
-	not	rcx
-	dec	rcx
-	
-	ret
 
 	section   .data
 teststr:  db	"testing a%s%aa cool%a percent%t", 0h
