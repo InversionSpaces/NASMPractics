@@ -5,7 +5,7 @@ section	.text
 ;====================
 ; Inputs:	RSI - adress of null-terminated string to print 
 ; Outputs:	String to stdout
-; Destroys:	RSI, RDI, RDX, RAX, RCX 
+; Destroys:	RAX, RCX, RDX, RSI, RDI
 ;====================
 prints:
 	mov	rdi, rsi
