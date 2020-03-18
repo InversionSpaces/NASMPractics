@@ -23,6 +23,9 @@ phandle:
 
 	cmp	al, 'c'
 	je	char
+	
+	cmp	al, 'd'
+	je	decnum
 
 	ret
 
@@ -43,6 +46,10 @@ octnum:
 	
 binnum:
 	mov	rbx, 2
+	jmp	num
+
+decnum:
+	mov	rbx, 10
 
 num:
 	mov	rax, [rsi]

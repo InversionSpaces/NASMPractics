@@ -7,10 +7,16 @@
 _start:
 	mov	rdi, teststr
 
-	mov	rax, 125
+	mov	rax, 127
 	push	rax
 
-	mov	rax, 'n'
+	mov	rax, '!'
+	push	rax
+
+	mov	rax, 100
+	push	rax
+
+	mov	rax, 3802
 	push	rax
 
 	mov	rsi, inner
@@ -23,8 +29,10 @@ _start:
 	
 	syscall				; invoke operating system to exit
 ;=====================
-;
-;
+; Inputs:	RDI - address of format string
+;		STACK - args top to bottom
+; Outputs:	Formatted string to stdout
+; Destroys:	RDI, RSI, RAX, RBX, RCX, RDX
 ;=====================	
 printf:
 	xor	rbx, rbx	; rbx = 0 // args counter
@@ -46,44 +54,51 @@ percent_loop:
 	cmp	rcx, 0h
 	je	no_percent	; string ended
 
+	mov	r10b, [rdi]
+	cmp	r10b, '%'
+	je	write		; if symbol is '%' - we can just write it
+
 	dec	rdx		; rdx = number of symbols before next %
 
 	cmp	rdx, 0h
 	je	handle		; if rdx == 0 then dont need to write
 
+write:
 ; WRITE(STDOUT, RSI, RDX) {
-	push	rbx		; save rbx
-	push	rcx		; save rcx
-	push	rdi		; save rdi	
+	mov	r9, rcx		; save rcx
+	mov	r8, rdi		; save rdi	
 	
 	mov	rax, 1h		; write
 	mov	rdi, 1h		; stdout
 
 	syscall
 
-	pop	rdi		; restore rdi
-	pop	rcx		; restore rcx
-	pop	rbx		; restore rbx
+	mov	rcx, r9		; restore rcx
+	mov	rdi, r8		; restore rdi
 ; }
+
+	cmp	r10b, '%'
+	je	next		; if symbol '%' - dont need to handle it
 
 handle:
 ; HANDLE {
-	mov	al, [rdi]			; placeholder to handle	
+	mov	al, [rdi]			; placeholder to handle
 	lea	rsi, [rsp + 8 + rbx * 8]	; argument
-	
-	push	rbx		; save rbx
-	push	rcx		; save rcx
-	push	rdi		; save rdi
+
+	mov	r8, rbx		; save rbx
+	mov	r9, rcx		; save rcx
+	mov	r10, rdi	; save rdi
 
 	call	phandle
 
-	pop	rdi		; restore rdi
-	pop	rcx		; restore rdi
-	pop	rbx		; restore rbx
+	mov	rbx, r8		; restore rbx
+	mov	rcx, r9		; restore rdi
+	mov	rdi, r10	; restore rdi
+	
+	inc	rbx		; args++
 ; }
 
-	inc	rbx		; args++
-	
+next:	
 	inc	rdi		; skip char after %
 	dec	rcx		; dec counter of remaining chars
 
@@ -106,5 +121,5 @@ printf_end:
 	ret
 
 	section   .data
-teststr:	db	"testing a%s%ca cool percent%x", 0h
-inner:		db	"inner str", 0h
+teststr:	db	"I %s %x %d%%%c%b", 0h
+inner:		db	"love", 0h

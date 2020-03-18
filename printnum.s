@@ -35,6 +35,7 @@ convert:
 	syscall
 ; }
 	ret
+
 	section	.data
 dict:	db '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 buffer:	times 64 db 0
