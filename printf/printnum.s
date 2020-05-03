@@ -1,6 +1,48 @@
 	global	printnum
+	global 	printbnum
 	
 	section	.text
+;===================
+; Inputs:	RAX - number to print
+;		CL - power of binary base
+; Outputs:	number in base to stdout
+; Destructs:	RAX, RCX, RDX, RSI
+;===================
+printbnum:
+	xor 	ch, ch
+	inc 	ch
+	shl 	ch, cl
+	dec 	ch 		; ch = (1 << cl) - 1
+
+	mov	rsi, buffer + bufsize
+	xor 	rdx, rdx
+
+.convert:
+; convert {
+	dec	rsi
+
+	mov 	dl, al
+	and 	dl, ch 		; rdx = rax & ch
+	shr 	rax, cl 	; rax = rax >> cl
+	
+	mov	dl, [dict + rdx]
+	mov	[rsi], dl
+
+	test	rax, rax
+	jne	.convert
+; } convert
+
+	mov	rdx, buffer + bufsize
+	sub	rdx, rsi 		; rdx = number of chars to write
+
+; WRITE(STDOUT, RSI, RDX) {
+	mov	rax, 1h 	; write
+	mov	rdi, 1h 	; stdout
+	
+	syscall
+; }
+
+	ret
 
 ;===================
 ; Inputs:	RAX - number to print
@@ -11,7 +53,7 @@
 printnum:
 	mov	rsi, buffer + bufsize
 
-convert:
+.convert:
 ; convert {
 	dec	rsi
 
@@ -22,18 +64,19 @@ convert:
 	mov	[rsi], dl
 
 	cmp	rax, 0h
-	jne	convert
+	jne	.convert
 ; } convert
 
 	mov	rdx, buffer + bufsize
-	sub	rdx, rsi
+	sub	rdx, rsi 		; rdx = number of chars to write
 
 ; WRITE(STDOUT, RSI, RDX) {
-	mov	rax, 1h
-	mov	rdi, 1h
+	mov	rax, 1h 	; write
+	mov	rdi, 1h 	; stdout
 	
 	syscall
 ; }
+
 	ret
 
 	section	.data
