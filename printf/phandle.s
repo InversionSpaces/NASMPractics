@@ -1,6 +1,6 @@
 	global	phandle
 	extern	printnum
-	extern	prints
+	extern 	strlen
 section	.text
 
 ;======================
@@ -30,9 +30,16 @@ phandle:
 	ret
 
 string:
-	mov	rsi, [rsi]
+	mov	rsi, [rsi] 	; rsi = address of string
+	
+	mov	rdi, rsi
+	call	strlen 		; rcx = string len (excluding null byte)
 
-	call	prints
+	mov	rdx, rcx
+	mov	rax, 1h 	; write 
+	mov	rdi, 1h 	; stdout
+
+	syscall
 
 	ret
 	

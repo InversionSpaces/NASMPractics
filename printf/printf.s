@@ -32,13 +32,13 @@ _start:
 ; Inputs:	RDI - address of format string
 ;		STACK - args top to bottom
 ; Outputs:	Formatted string to stdout
-; Destroys:	RDI, RSI, RAX, RBX, RCX, RDX
+; Destroys:	RDI, RSI, RAX, RBX, RCX, RDX, R8, R9, R10
 ;=====================	
 printf:
 	xor	rbx, rbx	; rbx = 0 // args counter
 
 	mov	rsi, rdi
-	call	strlen
+	call	strlen 		; rcx = string len (excluding null byte)
 	mov	rdi, rsi
 
 percent_loop:
