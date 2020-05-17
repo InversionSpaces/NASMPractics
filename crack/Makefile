@@ -13,6 +13,6 @@ patch:
 	./patch out
 	./out
 
-clear:
+clean:
 	rm -f patch
 	rm -f fake_scanf.so
