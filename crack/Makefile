@@ -14,5 +14,5 @@ patch:
 	./out
 
 clear:
-	rm patch
-	rm fake_scanf.so
+	rm -f patch
+	rm -f fake_scanf.so
