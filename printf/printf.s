@@ -23,6 +23,29 @@ _start:
 	push	rsi
 
 	call	printf	
+
+	sub 	rsp, 5 * 8 		; clear stack
+	
+	mov	rdi, teststr
+
+	mov	rax, 127
+	push	rax
+
+	mov	rax, '!'
+	push	rax
+
+	mov	rax, 100
+	push	rax
+
+	mov	rax, 3802
+	push	rax
+
+	mov	rsi, inner
+	push	rsi
+
+	call	printf	
+
+	sub 	rsp, 5 * 8 		; clear stack
 	
 	mov	rax, 60                 ; system call for exit
 	xor	rdi, rdi                ; exit code 0
@@ -41,7 +64,7 @@ printf:
 	call	strlen 		; rcx = string len (excluding null byte)
 	mov	rdi, rsi
 
-percent_loop:
+.percent_loop:
 	mov	al, '%'
 
 	mov	rsi, rdi	; rsi = rdi
@@ -52,18 +75,18 @@ percent_loop:
 	sub	rdx, rcx	; rdx = number of skipped symbols
 	
 	cmp	rcx, 0h
-	je	no_percent	; string ended
+	je	.no_percent	; string ended
 
 	mov	r10b, [rdi]
 	cmp	r10b, '%'
-	je	write		; if symbol is '%' - we can just write it
+	je	.write		; if symbol is '%' - we can just write it
 
 	dec	rdx		; rdx = number of symbols before next %
 
 	cmp	rdx, 0h
-	je	handle		; if rdx == 0 then dont need to write
+	je	.handle		; if rdx == 0 then dont need to write
 
-write:
+.write:
 ; WRITE(STDOUT, RSI, RDX) {
 	mov	r9, rcx		; save rcx
 	mov	r8, rdi		; save rdi	
@@ -78,9 +101,9 @@ write:
 ; }
 
 	cmp	r10b, '%'
-	je	next		; if symbol '%' - dont need to handle it
+	je	.next		; if symbol '%' - dont need to handle it
 
-handle:
+.handle:
 ; HANDLE {
 	mov	al, [rdi]			; placeholder to handle
 	lea	rsi, [rsp + 8 + rbx * 8]	; argument
@@ -98,17 +121,17 @@ handle:
 	inc	rbx		; args++
 ; }
 
-next:	
+.next:	
 	inc	rdi		; skip char after %
 	dec	rcx		; dec counter of remaining chars
 
 	cmp	rcx, 0h		
-	jne	percent_loop	; if chars left - continue
-	jmp	printf_end	; if string ended - stop
+	jne	.percent_loop	; if chars left - continue
+	jmp	.printf_end	; if string ended - stop
 
-no_percent:
+.no_percent:
 	cmp	rdx, 0h
-	je	printf_end	; if rdx == 0 then dont need to write
+	je	.printf_end	; if rdx == 0 then dont need to write
 
 ; WRITE(STDOUT, RSI, RDX)
 	mov	rax, 1
@@ -117,7 +140,7 @@ no_percent:
 	syscall
 ; }
 
-printf_end:
+.printf_end:
 	ret
 
 	section   .data
