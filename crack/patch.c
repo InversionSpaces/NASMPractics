@@ -14,8 +14,6 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	system("DISPLAY= mpv --quiet -vo=caca RickRollShort.mkv");
-
 	size_t start = 0x000011fa;
 	size_t end = 0x0000125a;
 	size_t size = end - start + 1;
